@@ -1,5 +1,5 @@
 export async function sendChatMessage(question: string, chatHistory: any[] = []) {
-    const response = await fetch("https://chatbot-philosophy.up.railway.app/chat", {
+    const response = await fetch("https://chatbot-backend-production-c162.up.railway.app/chat", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
