@@ -18,7 +18,7 @@ export default function Home() {
     try {
       const answer = await sendChatMessage(
         input,
-        chatHistory.map(({ role, content }) => [role, content])
+        chatHistory
       );
 
       setChatHistory((prev) => [
