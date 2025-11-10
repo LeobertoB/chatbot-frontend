@@ -125,7 +125,7 @@ export default function Home() {
                   Dostoevsky AI Philosopher
                 </h1>
                 <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                  Exploring existential questions through "The Grand Inquisitor"
+                  Exploring existential questions through Dostoevsky's works
                 </p>
               </div>
             </div>
@@ -147,7 +147,7 @@ export default function Home() {
                       Welcome to philosophical dialogue
                     </h3>
                     <p className="text-slate-600 dark:text-slate-400 max-w-md">
-                      Ask me about suffering, freedom, faith, or any theme from Dostoevsky's "The Grand Inquisitor"
+                      Ask me about suffering, freedom, faith, or any theme from Dostoevsky's most famous works!
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2 max-w-md">
