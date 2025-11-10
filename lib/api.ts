@@ -1,10 +1,14 @@
-export async function sendChatMessage(question: string, chatHistory: any[] = []) {
+export async function sendChatMessage(sessionId: string, question: string, chatHistory: any[] = []) {
     const response = await fetch("https://chatbot-backend-production-c162.up.railway.app/chat", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ question, chat_history: chatHistory }),
+        body: JSON.stringify({
+            session_id: sessionId,
+            question,
+            chat_history: chatHistory
+        }),
     });
 
     if (!response.ok) {

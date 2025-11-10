@@ -6,23 +6,23 @@ import { sendChatMessage } from "../lib/api";
 // Icons components
 const SendIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M7 11L12 6L17 11M12 18V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M7 11L12 6L17 11M12 18V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 const PhilosophyIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M9 12C9 13.3807 7.88071 14.5 6.5 14.5C5.11929 14.5 4 13.3807 4 12C4 10.6193 5.11929 9.5 6.5 9.5C7.88071 9.5 9 10.6193 9 12Z" stroke="currentColor" strokeWidth="2"/>
-    <path d="M20 12C20 13.3807 18.8807 14.5 17.5 14.5C16.1193 14.5 15 13.3807 15 12C15 10.6193 16.1193 9.5 17.5 9.5C18.8807 9.5 20 10.6193 20 12Z" stroke="currentColor" strokeWidth="2"/>
-    <path d="M6.5 9.5C6.5 7 8.5 5 12 5C15.5 5 17.5 7 17.5 9.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M6.5 14.5C6.5 17 8.5 19 12 19C15.5 19 17.5 17 17.5 14.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+    <path d="M9 12C9 13.3807 7.88071 14.5 6.5 14.5C5.11929 14.5 4 13.3807 4 12C4 10.6193 5.11929 9.5 6.5 9.5C7.88071 9.5 9 10.6193 9 12Z" stroke="currentColor" strokeWidth="2" />
+    <path d="M20 12C20 13.3807 18.8807 14.5 17.5 14.5C16.1193 14.5 15 13.3807 15 12C15 10.6193 16.1193 9.5 17.5 9.5C18.8807 9.5 20 10.6193 20 12Z" stroke="currentColor" strokeWidth="2" />
+    <path d="M6.5 9.5C6.5 7 8.5 5 12 5C15.5 5 17.5 7 17.5 9.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    <path d="M6.5 14.5C6.5 17 8.5 19 12 19C15.5 19 17.5 17 17.5 14.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
   </svg>
 );
 
 const UserIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
@@ -38,11 +38,29 @@ const TypingIndicator = () => (
   </div>
 );
 
+// Generate unique session ID
+const generateSessionId = () => {
+  return `session_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+};
+
 export default function Home() {
   const [input, setInput] = useState("");
   const [chatHistory, setChatHistory] = useState<{ role: string, content: string }[]>([]);
   const [loading, setLoading] = useState(false);
+  const [sessionId, setSessionId] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Initialize session ID on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      let storedSessionId = localStorage.getItem('chatbot_session_id');
+      if (!storedSessionId) {
+        storedSessionId = generateSessionId();
+        localStorage.setItem('chatbot_session_id', storedSessionId);
+      }
+      setSessionId(storedSessionId);
+    }
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -53,7 +71,7 @@ export default function Home() {
   }, [chatHistory, loading]);
 
   async function sendMessage() {
-    if (!input.trim() || loading) return;
+    if (!input.trim() || loading || !sessionId) return;
 
     const newEntry = { role: "user", content: input };
     setChatHistory([...chatHistory, newEntry]);
@@ -62,6 +80,7 @@ export default function Home() {
 
     try {
       const answer = await sendChatMessage(
+        sessionId,
         input,
         chatHistory
       );
@@ -92,7 +111,7 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-950">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,119,198,0.1),rgba(255,255,255,0))]" />
-      
+
       <div className="relative flex min-h-screen flex-col">
         {/* Header */}
         <header className="border-b border-slate-200/50 dark:border-slate-700/50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
@@ -148,30 +167,27 @@ export default function Home() {
                   </div>
                 </div>
               )}
-              
+
               {chatHistory.map((msg, idx) => (
                 <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-fade-in-up`}>
-                  <div className={`flex max-w-[80%] space-x-3 ${
-                    msg.role === "user" ? "flex-row-reverse space-x-reverse" : "flex-row"
-                  }`}>
-                    <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                      msg.role === "user" 
-                        ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white" 
-                        : "bg-gradient-to-r from-indigo-500 to-purple-600 text-white"
+                  <div className={`flex max-w-[80%] space-x-3 ${msg.role === "user" ? "flex-row-reverse space-x-reverse" : "flex-row"
                     }`}>
+                    <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${msg.role === "user"
+                      ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white"
+                      : "bg-gradient-to-r from-indigo-500 to-purple-600 text-white"
+                      }`}>
                       {msg.role === "user" ? <UserIcon /> : <PhilosophyIcon />}
                     </div>
-                    <div className={`px-4 py-3 rounded-2xl ${
-                      msg.role === "user"
-                        ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-tr-md"
-                        : "bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-tl-md"
-                    } shadow-sm`}>
+                    <div className={`px-4 py-3 rounded-2xl ${msg.role === "user"
+                      ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-tr-md"
+                      : "bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-tl-md"
+                      } shadow-sm`}>
                       <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                     </div>
                   </div>
                 </div>
               ))}
-              
+
               {loading && (
                 <div className="flex justify-start animate-fade-in-up">
                   <div className="flex max-w-[80%] space-x-3">
@@ -184,7 +200,7 @@ export default function Home() {
                   </div>
                 </div>
               )}
-              
+
               <div ref={messagesEndRef} />
             </div>
 
